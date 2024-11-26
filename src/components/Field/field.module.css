@@ -1,0 +1,29 @@
+.field-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	width: 250px;
+	margin-top: 30px;
+}
+.field-list .item {
+	width: 70px;
+	height: 70px;
+	cursor: pointer;
+	font-size: 30px;
+	transition: background-color 0.15s ease;
+	border-radius: 4px;
+	border: none;
+	color: #202124;
+	background: #dadce0;
+}
+.field-list .item.red {
+	color: red;
+}
+.field-list .item:hover {
+	background: #c4c6ca;
+}
+.field-list .item[disabled],
+.field-list .item[disabled]:hover {
+	cursor: not-allowed;
+	background: #c5c5c5;
+}
