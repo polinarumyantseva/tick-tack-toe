@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Field, Information } from './components';
+import { store } from './store/store';
 import styles from './app.module.css';
 
-const FIELD = ['', '', '', '', '', '', '', '', ''];
 const WIN_PATTERNS = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -15,23 +15,31 @@ const WIN_PATTERNS = [
 ];
 
 export const App = () => {
-	const [currentPlayer, setCurrentPlayer] = useState('X');
-	const [isGameEnded, setIsGameEnded] = useState(false);
-	const [isDraw, setIsDraw] = useState(false);
-	const [field, setField] = useState(FIELD);
+	const [state, setState] = useState(store.getState());
+	const { field, currentPlayer, flags } = state;
+
+	useEffect(() => {
+		const unsubscribe = store.subscribe(() => {
+			setState(store.getState());
+		});
+
+		return () => unsubscribe();
+	}, []);
 
 	const handleSetCurrentPlayer = (item, index) => {
-		if (item === '' && !isGameEnded) {
+		if (item === '' && !flags.isGameEnded) {
 			const newFields = field.map((el, indx) => (field[index] = index === indx ? currentPlayer : el));
-			setField(newFields);
+			store.dispatch({ type: 'SET_FIELD', payload: newFields });
 
 			const hasEmptyField = field.some((field) => field === '');
-			if (!hasEmptyField) setIsDraw(true);
+			if (!hasEmptyField) store.dispatch({ type: 'SET_IS_DRAW', payload: true });
 
 			if (isWinner(newFields)) {
-				setIsGameEnded(true);
+				store.dispatch({ type: 'SET_IS_GAME_ENDED', payload: true });
 			} else {
-				setCurrentPlayer(currentPlayer === 'X' ? '0' : 'X');
+				const newPlayer = currentPlayer === 'X' ? '0' : 'X';
+
+				store.dispatch({ type: 'SET_CURRENT_PLAYER', payload: newPlayer });
 			}
 		}
 	};
@@ -54,32 +62,20 @@ export const App = () => {
 	};
 
 	const handleStartAgain = () => {
-		setCurrentPlayer('X');
-		setIsGameEnded(false);
-		setIsDraw(false);
-		setField(FIELD);
+		store.dispatch({ type: 'RESTART' });
 	};
 
-	return (
-		<AppLayout
-			field={field}
-			handleSetCurrentPlayer={handleSetCurrentPlayer}
-			isDraw={isDraw}
-			isGameEnded={isGameEnded}
-			currentPlayer={currentPlayer}
-			handleStartAgain={handleStartAgain}
-		/>
-	);
+	return <AppLayout handleSetCurrentPlayer={handleSetCurrentPlayer} handleStartAgain={handleStartAgain} />;
 };
 
-const AppLayout = ({ field, handleSetCurrentPlayer, isDraw, isGameEnded, currentPlayer, handleStartAgain }) => {
+const AppLayout = ({ handleSetCurrentPlayer, handleStartAgain }) => {
 	return (
 		<div className={styles.container}>
 			<div className={styles.card}>
 				<h1>Игра «Крестики-Нолики»</h1>
 				<div className={styles.wrapper}>
-					<Field field={field} handleClick={handleSetCurrentPlayer} isGameEnded={isGameEnded} />
-					<Information isDraw={isDraw} isGameEnded={isGameEnded} currentPlayer={currentPlayer} />
+					<Field handleClick={handleSetCurrentPlayer} />
+					<Information />
 					<button className={styles['button-start-again']} onClick={handleStartAgain}>
 						Начать заново
 					</button>

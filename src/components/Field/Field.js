@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
 import styles from './field.module.css';
+import { store } from '../../store/store';
 
-const FieldLayout = ({ field, onClick, isGameEnded }) => {
+const FieldLayout = ({ onClick }) => {
+	const { field, flags } = store.getState();
+
 	return (
 		<div className={styles['field-list']}>
 			{field.map((item, index) => {
@@ -10,7 +13,7 @@ const FieldLayout = ({ field, onClick, isGameEnded }) => {
 						key={index}
 						onClick={() => onClick(item, index)}
 						className={styles['item'] + (item === '0' ? ' ' + styles.red : '')}
-						disabled={isGameEnded}
+						disabled={flags.isGameEnded}
 					>
 						{item}
 					</button>
@@ -20,18 +23,14 @@ const FieldLayout = ({ field, onClick, isGameEnded }) => {
 	);
 };
 
-export const Field = ({ field, handleClick, isGameEnded }) => {
-	return <FieldLayout field={field} onClick={handleClick} isGameEnded={isGameEnded} />;
+export const Field = ({ handleClick }) => {
+	return <FieldLayout onClick={handleClick} />;
 };
 
 Field.propTypes = {
-	field: PropTypes.arrayOf(PropTypes.string),
 	handleClick: PropTypes.func,
-	isGameEnded: PropTypes.bool,
 };
 
 FieldLayout.propTypes = {
-	field: PropTypes.arrayOf(PropTypes.string),
 	onClick: PropTypes.func,
-	isGameEnded: PropTypes.bool,
 };
