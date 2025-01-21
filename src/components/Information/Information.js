@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import styles from './information.module.css';
 import { store } from '../../store/store';
+import { useSubscribe } from '../../hooks';
 
 const InformationLayout = ({ status }) => {
 	return <div className={styles.status}>{status}</div>;
@@ -10,9 +11,9 @@ export const Information = () => {
 	const { currentPlayer, flags } = store.getState();
 	const { isDraw, isGameEnded } = flags;
 
-	let status = '';
+	useSubscribe();
 
-	console.log('currentPlayer', currentPlayer);
+	let status = '';
 
 	if (isDraw) {
 		status = 'Ничья';

@@ -1,9 +1,29 @@
-import PropTypes from 'prop-types';
 import styles from './field.module.css';
 import { store } from '../../store/store';
+import { checkWinner, hasEmptyField } from '../../utils';
+import { useSubscribe } from '../../hooks';
 
-const FieldLayout = ({ onClick }) => {
-	const { field, flags } = store.getState();
+const FieldLayout = () => {
+	const { field, currentPlayer, flags } = store.getState();
+
+	useSubscribe();
+
+	const handleSetCurrentPlayer = (item, index) => {
+		if (item === '' && !flags.isGameEnded) {
+			const newFields = field.map((el, indx) => (field[index] = index === indx ? currentPlayer : el));
+			store.dispatch({ type: 'SET_FIELD', payload: newFields });
+
+			if (!hasEmptyField(field)) store.dispatch({ type: 'SET_IS_DRAW', payload: true });
+
+			if (checkWinner(newFields, currentPlayer)) {
+				store.dispatch({ type: 'SET_IS_GAME_ENDED', payload: true });
+			} else {
+				const newPlayer = currentPlayer === 'X' ? '0' : 'X';
+
+				store.dispatch({ type: 'SET_CURRENT_PLAYER', payload: newPlayer });
+			}
+		}
+	};
 
 	return (
 		<div className={styles['field-list']}>
@@ -11,7 +31,7 @@ const FieldLayout = ({ onClick }) => {
 				return (
 					<button
 						key={index}
-						onClick={() => onClick(item, index)}
+						onClick={() => handleSetCurrentPlayer(item, index)}
 						className={styles['item'] + (item === '0' ? ' ' + styles.red : '')}
 						disabled={flags.isGameEnded}
 					>
@@ -23,14 +43,6 @@ const FieldLayout = ({ onClick }) => {
 	);
 };
 
-export const Field = ({ handleClick }) => {
-	return <FieldLayout onClick={handleClick} />;
-};
-
-Field.propTypes = {
-	handleClick: PropTypes.func,
-};
-
-FieldLayout.propTypes = {
-	onClick: PropTypes.func,
+export const Field = () => {
+	return <FieldLayout />;
 };
