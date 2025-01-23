@@ -1,10 +1,11 @@
 import { Field, Information } from './components';
 import { store } from './store/store';
+import { RESTART } from './store/actions';
 import styles from './app.module.css';
 
 export const App = () => {
 	const handleStartAgain = () => {
-		store.dispatch({ type: 'RESTART' });
+		store.dispatch(RESTART);
 	};
 
 	return <AppLayout handleStartAgain={handleStartAgain} />;

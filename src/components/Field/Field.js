@@ -1,26 +1,29 @@
-import styles from './field.module.css';
-import { store } from '../../store/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectField, selectCurrentPlayer, selectFlagIsGameEnded } from '../../store/selectors';
+import { setField, setIsDraw, setIsGameEnded, setCurrentPlayer } from '../../store/actions';
 import { checkWinner, hasEmptyField } from '../../utils';
-import { useSubscribe } from '../../hooks';
+import styles from './field.module.css';
 
 const FieldLayout = () => {
-	const { field, currentPlayer, flags } = store.getState();
+	const dispatch = useDispatch();
 
-	useSubscribe();
+	const field = useSelector(selectField);
+	const currentPlayer = useSelector(selectCurrentPlayer);
+	const isGameEnded = useSelector(selectFlagIsGameEnded);
 
 	const handleSetCurrentPlayer = (item, index) => {
-		if (item === '' && !flags.isGameEnded) {
+		if (item === '' && !isGameEnded) {
 			const newFields = field.map((el, indx) => (field[index] = index === indx ? currentPlayer : el));
-			store.dispatch({ type: 'SET_FIELD', payload: newFields });
+			dispatch(setField(newFields));
 
-			if (!hasEmptyField(field)) store.dispatch({ type: 'SET_IS_DRAW', payload: true });
+			if (!hasEmptyField(field)) dispatch(setIsDraw(true));
 
 			if (checkWinner(newFields, currentPlayer)) {
-				store.dispatch({ type: 'SET_IS_GAME_ENDED', payload: true });
+				dispatch(setIsGameEnded(true));
 			} else {
 				const newPlayer = currentPlayer === 'X' ? '0' : 'X';
 
-				store.dispatch({ type: 'SET_CURRENT_PLAYER', payload: newPlayer });
+				dispatch(setCurrentPlayer(newPlayer));
 			}
 		}
 	};
@@ -33,7 +36,7 @@ const FieldLayout = () => {
 						key={index}
 						onClick={() => handleSetCurrentPlayer(item, index)}
 						className={styles['item'] + (item === '0' ? ' ' + styles.red : '')}
-						disabled={flags.isGameEnded}
+						disabled={isGameEnded}
 					>
 						{item}
 					</button>

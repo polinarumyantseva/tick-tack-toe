@@ -1,17 +1,16 @@
+import { useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import { selectCurrentPlayer, selectFlagIsGameEnded, selectFlagIsDraw } from '../../store/selectors';
 import styles from './information.module.css';
-import { store } from '../../store/store';
-import { useSubscribe } from '../../hooks';
 
 const InformationLayout = ({ status }) => {
 	return <div className={styles.status}>{status}</div>;
 };
 
 export const Information = () => {
-	const { currentPlayer, flags } = store.getState();
-	const { isDraw, isGameEnded } = flags;
-
-	useSubscribe();
+	const currentPlayer = useSelector(selectCurrentPlayer);
+	const isDraw = useSelector(selectFlagIsDraw);
+	const isGameEnded = useSelector(selectFlagIsGameEnded);
 
 	let status = '';
 
